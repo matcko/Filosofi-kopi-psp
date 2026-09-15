@@ -13,6 +13,26 @@ jobs:
 
       - name: Install PSPDEV
         run: |
-          git clone --depth 1 https://github.com/pspdev/pspdev.git
-          cd pspdev
-          ./prepare.sh
+          wget -q https://github.com/pspdev/pspdev/releases/download/v20260901/pspdev-ubuntu-latest-x86_64.tar.gz
+          mkdir -p "$HOME/pspdev"
+          tar -xzf pspdev-ubuntu-latest-x86_64.tar.gz -C "$HOME/pspdev"
+          echo "PSPDEV=$HOME/pspdev" >> "$GITHUB_ENV"
+          echo "$HOME/pspdev/bin" >> "$GITHUB_PATH"
+
+      - name: Check PSPDEV
+        run: |
+          psp-gcc --version
+          psp-cmake --version
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          psp-cmake ..
+          make
+
+      - name: Upload EBOOT.PBP
+        uses: actions/upload-artifact@v4
+        with:
+          name: filosofi-kopi-psp
+          path: build/EBOOT.PBP
